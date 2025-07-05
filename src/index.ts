@@ -3,6 +3,7 @@ import https from 'https';
 import fs from 'fs';
 import cors from "cors";
 import dotenv from "dotenv";
+import serverless from "serverless-http";
 import { initializeDB } from "../src/data-src";
 //import { startSubscriptionChecker } from "./services/subscriptionService";
 import memberRouter from "./routes/memberRoutes";
@@ -54,3 +55,4 @@ startServer().catch(error => {
   }
   process.exit(1);
 });
+module.exports.handler = serverless(app);
