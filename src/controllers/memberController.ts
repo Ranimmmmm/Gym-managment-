@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { AppDataSource } from "../data-src";
 import { Member } from "../entities/Member";
-
+import { Paiement } from "../entities/Payment";
 export const createMember = async (req: Request, res: Response) => {
   try {
     const memberRepository = AppDataSource.getRepository(Member);
@@ -9,7 +9,7 @@ export const createMember = async (req: Request, res: Response) => {
     const result = await memberRepository.save(member);
     res.status(201).json(result);
   } catch (error) {
-    res.status(400).json({ message: "Error creating member", error });
+    res.status(400).json({ message: "Error creating member" });
   }
 };
 
@@ -34,13 +34,13 @@ export const getMembersWithSubscriptions = async (
   try {
     const memberRepository = AppDataSource.getRepository(Member);
     const members = await memberRepository.find({
-      relations: ["subscriptions", "payments"]
+      relations: ["subscriptions", "paiement"]  // Fixed relation name
     });
 
     const membersWithStatus = members.map(member => {
-      const activeSubscriptions = member.subscriptions.filter(s => s.isActive);
+      const activeSubscriptions = member.subscriptions.filter(s => s.estActif);
       const expiringSoon = activeSubscriptions.filter(sub => {
-        const endDate = new Date(sub.endDate);
+        const endDate = new Date(sub.dateFin);
         const today = new Date();
         const timeDiff = endDate.getTime() - today.getTime();
         const daysLeft = timeDiff / (1000 * 3600 * 24);
@@ -59,7 +59,13 @@ export const getMembersWithSubscriptions = async (
 
     res.json(membersWithStatus);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching members" });
+    // Only log full error details in development
+    if (process.env.NODE_ENV === 'development') {
+      console.error("Error in getMembersWithSubscriptions:", error);
+    } else {
+      console.error("Error in getMembersWithSubscriptions:", error instanceof Error ? error.message : "Unknown error");
+    }
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
@@ -98,14 +104,14 @@ export const getUnpaidMembers = async (req: Request, res: Response) => {
 
     const unpaidMembers = members.filter((member) => {
       const activeSub = member.subscriptions.find(
-        (sub) => sub.isActive && new Date(sub.endDate) >= today
+        (sub) => sub.estActif && new Date(sub.dateFin) >= today
       );
       return !activeSub;
     });
 
     res.json(unpaidMembers);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching unpaid members", error });
+    res.status(500).json({ message: "Error fetching unpaid members" });
   }
 };
 

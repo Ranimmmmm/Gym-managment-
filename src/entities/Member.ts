@@ -1,6 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
-import { Subscription } from "./Subscription";
-import { Payment } from "./Payment";
+ import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
+import { Subscriptions } from "./Subscription";
+import { Paiement } from "./Payment";
 
 @Entity()
 export class Member {
@@ -8,33 +8,39 @@ export class Member {
   id!: number;
 
   @Column()
-  firstName!: string;
+  prenom!: string;
 
   @Column()
-  lastName!: string;
+  nom!: string;
 
   @Column({ unique: true })
-  phone!: string;
+  telephone!: string;
+  @Column()
+  adresse!: string;
+   @Column({ type: "date", nullable: true })
+  datedenaissence?: Date;
 
+  @Column({ nullable: true })
+  telParent?: string;
   @Column({ type: "date", default: () => "CURRENT_DATE" })
-  joinDate!: Date;
+  dateInscription!: Date;
 
-  @OneToMany(() => Subscription, (subscription) => subscription.member ,  { cascade: true })
-  subscriptions!: Subscription[];
+  @OneToMany(() => Subscriptions, (subscription) => subscription.member ,  { cascade: true })
+  subscriptions!: Subscriptions[];
 
-  @OneToMany(() => Payment, (payment) => payment.member,  { cascade: true })
-  payments!: Payment[];
+  @OneToMany(() => Paiement, (paiement) => paiement.member,  { cascade: true })
+  paiement!: Paiement[];
 
   // Add this method for dashboard display
-  getExpiringSubscriptions(): Subscription[] {
+  getExpiringSubscriptions(): Subscriptions[] {
     const today = new Date();
     const sevenDaysFromNow = new Date();
     sevenDaysFromNow.setDate(today.getDate() + 7);
     
     return this.subscriptions.filter(sub => 
-      sub.isActive && 
-      new Date(sub.endDate) > today && 
-      new Date(sub.endDate) <= sevenDaysFromNow
+      sub.estActif && 
+      new Date(sub.dateFin) > today && 
+      new Date(sub.dateFin) <= sevenDaysFromNow
     );
   }
-}
+} 

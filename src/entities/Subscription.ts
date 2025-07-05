@@ -1,32 +1,30 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from "typeorm";
 import { Member } from "./Member";
-import { Payment } from "./Payment";
+import { Paiement } from "./Payment";
 
 @Entity()
-export class Subscription {
+export class Subscriptions {
   @PrimaryGeneratedColumn()
   id!: number;
 
   @ManyToOne(() => Member, (member) => member.subscriptions, { onDelete: "CASCADE" })
   member!: Member;
 
-  @Column()
-  sportType!: string; // e.g., "Musculation", "Karaté"
+   @Column()
+  typeSport!: string; // "Musculation", "Karaté", etc.
 
   @Column('decimal', { precision: 10, scale: 2 })
-  monthlyPrice!: number;
+  prixMensuel!: number;
 
   @Column({ type: "date" })
-  startDate!: Date;
+  dateDébut!: Date;
 
   @Column({ type: "date" })
-  endDate!: Date;
+  dateFin!: Date;
 
   @Column({ default: true })
-  isActive!: boolean;
+  estActif!: boolean;
 
-  @OneToMany(() => Payment, (payment) => payment.subscription)
-payments!: Payment[];
-
-
+  @OneToMany(() => Paiement, (paiement) => paiement.subscription)
+  paiements!: Paiement[];
 }

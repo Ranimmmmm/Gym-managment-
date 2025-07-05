@@ -13,10 +13,15 @@ import { errorHandler } from "./middlewares/errorHandler";
 dotenv.config();
 import helmet from 'helmet';
 const app = express();
-const PORT = process.env.PORT ;
+const PORT = process.env.PORT;
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: process.env.FRONT_URL,
+  credentials: true,
+  methods: 'GET,POST,PUT,DELETE,PATCH,UPDATE',
+  allowedHeaders: 'Content-Type ,Authorization',
+}));
 app.use(express.json());
 app.use(helmet());
 // Routes
@@ -34,13 +39,18 @@ app.get("/", (req, res) => {
 const startServer = async () => {
   await initializeDB();
   //startSubscriptionChecker();
- 
+
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
   });
 };
 
 startServer().catch(error => {
-  console.error("Failed to start server:", error);
+  // Only log full error details in development
+  if (process.env.NODE_ENV === 'development') {
+    console.error("Failed to start server:", error);
+  } else {
+    console.error("Failed to start server:", error instanceof Error ? error.message : "Unknown error");
+  }
   process.exit(1);
 });

@@ -1,4 +1,3 @@
-// entities/Payment.ts
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -7,25 +6,23 @@ import {
   CreateDateColumn,
 } from "typeorm";
 import { Member } from "./Member";
-import { Subscription } from "./Subscription";
+import { Subscriptions } from "./Subscription";
 
 @Entity()
-export class Payment {
+export class Paiement {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column("float")
-  amount!: number;
+    @Column("float")
+  montant!: number;
 
-  @Column()
-  paymentMethod!: string;
 
   @CreateDateColumn()
-  paidAt!: Date;
+  datePaiement!: Date;
 
-  @ManyToOne(() => Member, (member) => member.payments, { eager: true })
+  @ManyToOne(() => Member, (member) => member.paiement)
   member!: Member;
 
-  @ManyToOne(() => Subscription, (sub) => sub.payments, { eager: true })
-  subscription!: Subscription;
+  @ManyToOne(() => Subscriptions, (sub) => sub.paiements, { eager: true })
+  subscription!: Subscriptions;
 }

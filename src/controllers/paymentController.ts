@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { AppDataSource } from "../data-src";
 import { Member } from "../entities/Member";
-import { Subscription } from "../entities/Subscription";
-import { Payment } from "../entities/Payment";
+import { Subscriptions } from "../entities/Subscription";
+import { Paiement } from "../entities/Payment";
 export const recordPayment = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { memberId, amount, paymentMethod = "Cash" } = req.body;
@@ -15,29 +15,28 @@ export const recordPayment = async (req: Request, res: Response, next: NextFunct
     if (!member) return res.status(404).json({ message: "Member not found" });
 
     // Get current subscription or create new
-    let currentSub = member.subscriptions.find(sub => sub.isActive);
+    let currentSub = member.subscriptions.find(sub => sub.estActif);
 
     if (!currentSub) {
-      currentSub = new Subscription();
+      currentSub = new Subscriptions();
       currentSub.member = member;
-      currentSub.sportType = "Default"; // or use req.body.sportType
-      currentSub.monthlyPrice = amount;
-      currentSub.startDate = new Date();
-      currentSub.endDate = new Date();
-      currentSub.endDate.setMonth(currentSub.startDate.getMonth() + 1);
-      currentSub.isActive = true;
-      await AppDataSource.getRepository(Subscription).save(currentSub);
+      currentSub.typeSport = "Default"; // or use req.body.sportType
+      currentSub.prixMensuel = amount;
+      currentSub.dateDébut = new Date();
+      currentSub.dateFin = new Date();
+      currentSub.dateFin.setMonth(currentSub.dateDébut.getMonth() + 1);
+      currentSub.estActif = true;
+      await AppDataSource.getRepository(Subscriptions).save(currentSub);
     } else {
-      currentSub.endDate.setMonth(currentSub.endDate.getMonth() + 1);
-      currentSub.isActive = true;
-      await AppDataSource.getRepository(Subscription).save(currentSub);
+      currentSub.dateFin.setMonth(currentSub.dateFin.getMonth() + 1);
+      currentSub.estActif = true;
+      await AppDataSource.getRepository(Subscriptions).save(currentSub);
     }
-    const paymentRepository = AppDataSource.getRepository(Payment);
+    const paymentRepository = AppDataSource.getRepository(Paiement);
     const payment = paymentRepository.create({
-      member,
-      subscription: currentSub,
-      amount,
-      paymentMethod,
+      member: member,        // matches your entity's 'membre' property
+      montant: amount // matches your entity's 'abonnement' property
+  
     });
 
     const savedPayment = await paymentRepository.save(payment);
