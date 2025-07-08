@@ -4,7 +4,7 @@ import fs from 'fs';
 import cors from "cors";
 import dotenv from "dotenv";
 import serverless from "serverless-http";
-import { initializeDB } from "../src/data-src";
+import { initializeDB } from "./data-src";
 //import { startSubscriptionChecker } from "./services/subscriptionService";
 import memberRouter from "./routes/memberRoutes";
 import paymentRouter from "./routes/paymentRoutes";
