@@ -79,3 +79,24 @@ export const renewSubscription = async (req: Request, res: Response) => {
     });
   }
 };
+// Similar to your deleteMember function
+export const deleteSubscription = async (req: Request, res: Response) => {
+  try {
+    const subscriptionId = parseInt(req.params.id);
+    const subscriptionRepository = AppDataSource.getRepository(Subscriptions);
+
+    const subscription = await subscriptionRepository.findOne({
+      where: { id: subscriptionId },
+    });
+
+    if (!subscription) {
+      return res.status(404).json({ message: "Subscription not found" });
+    }
+
+    await subscriptionRepository.remove(subscription);
+
+    return res.status(200).json({ message: "Subscription deleted successfully" });
+  } catch (error) {
+    res.status(404);
+  }
+};
