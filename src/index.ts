@@ -1,6 +1,6 @@
 import express from "express";
-import https from 'https';
-import fs from 'fs';
+import https from "https";
+import fs from "fs";
 import cors from "cors";
 import dotenv from "dotenv";
 import serverless from "serverless-http";
@@ -8,21 +8,26 @@ import { initializeDB } from "./data-src";
 //import { startSubscriptionChecker } from "./services/subscriptionService";
 import memberRouter from "./routes/memberRoutes";
 import paymentRouter from "./routes/paymentRoutes";
-import subscriptionRouter from "./routes/subscriptionRoutes"
-import dashboardRouter from "./routes/dashboradRoutes"
+import subscriptionRouter from "./routes/subscriptionRoutes";
+import dashboardRouter from "./routes/dashboradRoutes";
 import { errorHandler } from "./middlewares/errorHandler";
 dotenv.config();
-import helmet from 'helmet';
+import helmet from "helmet";
 const app = express();
 const PORT = process.env.PORT;
 
 // Middleware
-app.use(cors({
-  origin: process.env.FRONT_URL,
-  credentials: true,
-  methods: 'GET,POST,PUT,DELETE,PATCH,UPDATE',
-  allowedHeaders: 'Content-Type ,Authorization',
-}));
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      callback(null, true);
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "UPDATE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 app.use(express.json());
 app.use(helmet());
 // Routes
@@ -46,12 +51,15 @@ const startServer = async () => {
   });
 };
 
-startServer().catch(error => {
+startServer().catch((error) => {
   // Only log full error details in development
-  if (process.env.NODE_ENV === 'development') {
+  if (process.env.NODE_ENV === "development") {
     console.error("Failed to start server:", error);
   } else {
-    console.error("Failed to start server:", error instanceof Error ? error.message : "Unknown error");
+    console.error(
+      "Failed to start server:",
+      error instanceof Error ? error.message : "Unknown error"
+    );
   }
   process.exit(1);
 });
